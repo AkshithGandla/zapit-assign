@@ -24,3 +24,59 @@ exports.create_task = (req, res, next) => {
     })
     .catch((err) => console.error("error: " + err));
 };
+exports.get_all_tasks = (req, res, next) => {
+  TaskEntry.find()
+    .select("name description assignee createdAt completed")
+    .exec()
+    .then((docs) => {
+      const response = {
+        count: docs.length,
+        tasks: docs.map((doc) => {
+          return {
+            name: doc.name,
+            description: doc.description,
+            assignee: doc.assignee,
+            createdAt: doc.createdAt,
+            completed: doc.completed,
+            request: "GET",
+            URL: "baseURL/tasks/" + doc._id,
+          };
+        }),
+      };
+
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send(err.message);
+    });
+};
+
+exports.get_task = (req, res, next) => {
+  const id = req.params.taskId;
+  TaskEntry.findById(id)
+    .select("name description assignee createdAt completed")
+    .exec()
+    .then((doc) => {
+      if (doc) {
+        res.status(200).json({
+          name: doc.name,
+          description: doc.description,
+          assignee: doc.assignee,
+          createdAt: doc.createdAt,
+          completed: doc.completed,
+          request: "GET",
+        });
+      } else {
+        console.log("No valid entry");
+        res.status(404).json({ error: "No entry found" });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ errorMessage: "No entry found" });
+    });
+};
+
+exports.update_task = (req, res, next) => {};
+exports.delete_task = (req, res, next) => {};
