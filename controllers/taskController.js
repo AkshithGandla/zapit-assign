@@ -78,5 +78,38 @@ exports.get_task = (req, res, next) => {
     });
 };
 
-exports.update_task = (req, res, next) => {};
-exports.delete_task = (req, res, next) => {};
+exports.update_task = (req, res, next) => {
+  const id = req.params.taskId;
+  const updateOps = {};
+
+  for (const ops in req.body) {
+    updateOps[ops.propName] = ops.value;
+  }
+
+  TaskEntry.updateMany({ _id: id }, { $set: updateOps })
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: "Task updated successfully",
+        request: {
+          type: "GET",
+          url: "baseURL/tasks/" + id,
+        },
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+};
+exports.delete_task = (req, res, next) => {
+  const id = req.params.taskId;
+  TaskEntry.remove({ _id: id })
+    .exec()
+    .then((result) => {
+      res.status(200).json({ message: "Task deleted successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+    });
+};
