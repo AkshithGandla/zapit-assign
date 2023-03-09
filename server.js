@@ -1,10 +1,11 @@
-import express from "express";
-import cors from "cors";
-import morgan from "morgan";
-import helmet from "helmet";
-import dotenv from "dotenv";
-import bodyParser from "body-parser";
-import mongoose from "mongoose";
+const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
+const helmet = require("helmet");
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const taskRoutes = require("./routes/task.js");
 
 //configuration
 dotenv.config();
@@ -17,6 +18,8 @@ app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
+
+app.use("/task", taskRoutes);
 
 const PORT = process.env.PORT || 5000;
 
