@@ -4,8 +4,12 @@ import morgan from "morgan";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import mongoose from "mongoose";
+
 //configuration
+dotenv.config();
 const app = express();
+
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
@@ -16,6 +20,14 @@ app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`listening on port: ${PORT}`);
-});
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewURLParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+  })
+  .catch((err) => console.log(`error connecting: ${err.message}`));
+
+mongoose.set("strictQuery", false);
