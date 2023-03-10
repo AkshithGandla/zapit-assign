@@ -20,7 +20,7 @@ const TaskSchema = new mongoose.Schema(
       default: false,
     },
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId, //reference to the User schema: Each task will have a user assigned
       ref: "user",
       required: true,
     },

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const TaskEntry = require("../models/TaskEntry.js");
 
+//Create a new Task
 exports.create_task = (req, res, next) => {
   const task = new TaskEntry({
     _id: new mongoose.Types.ObjectId(),
@@ -24,6 +25,8 @@ exports.create_task = (req, res, next) => {
     })
     .catch((err) => console.error("error: " + err));
 };
+
+//Get all the existing tasks of the logged in user
 exports.get_all_tasks = (req, res, next) => {
   TaskEntry.find({ user: req.user })
     .select("name description user createdAt completed")
@@ -52,6 +55,7 @@ exports.get_all_tasks = (req, res, next) => {
     });
 };
 
+//Get the specific task of the logged in user
 exports.get_task = (req, res, next) => {
   const id = req.params.taskId;
   TaskEntry.findById(id)
@@ -82,6 +86,7 @@ exports.get_task = (req, res, next) => {
     });
 };
 
+//Update the Specified task of the logged in user
 exports.update_task = (req, res, next) => {
   const id = req.params.taskId;
 
@@ -121,6 +126,8 @@ exports.update_task = (req, res, next) => {
       console.log(error);
     });
 };
+
+//Delete the Specified task of the logged in user
 exports.delete_task = (req, res, next) => {
   const id = req.params.taskId;
 

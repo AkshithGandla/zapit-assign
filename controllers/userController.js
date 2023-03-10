@@ -3,6 +3,7 @@ const User = require("../models/User.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+//controller to handle SignUp
 exports.signUp = async (req, res, next) => {
   const { name, email, password } = req.body;
 
@@ -12,9 +13,11 @@ exports.signUp = async (req, res, next) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    //hasing password with bcrypt
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    //pushing user into Atlas with hashed password
     user = new User({
       _id: new mongoose.Types.ObjectId(),
       name: name,
@@ -44,6 +47,8 @@ exports.signUp = async (req, res, next) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+//Controller to handle Logging in
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
@@ -77,6 +82,8 @@ exports.login = async (req, res, next) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+//Logout controller
 exports.logout = async (req, res, next) => {
   console.log(req);
   res.clearCookie("token");
