@@ -15,7 +15,7 @@ exports.create_task = (req, res, next) => {
     .then((result) => {
       console.log(result);
       res.status(201).json({
-        message: "product created succesfully",
+        message: "task created succesfully",
         createdTask: {
           _id: result._id,
           name: result.name,
