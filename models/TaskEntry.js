@@ -15,13 +15,6 @@ const TaskSchema = new mongoose.Schema(
       min: 4,
       max: 20,
     },
-    assignee: {
-      type: String,
-      required: true,
-      min: 4,
-      max: 20,
-    },
-
     completed: {
       type: Boolean,
       default: false,

@@ -6,7 +6,7 @@ exports.create_task = (req, res, next) => {
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
     description: req.body.description,
-    assignee: req.body.assignee,
+    user: req.user,
     completed: req.body.completed,
   });
   task
@@ -25,8 +25,8 @@ exports.create_task = (req, res, next) => {
     .catch((err) => console.error("error: " + err));
 };
 exports.get_all_tasks = (req, res, next) => {
-  TaskEntry.find()
-    .select("name description assignee createdAt completed")
+  TaskEntry.find({ user: req.user })
+    .select("name description user createdAt completed")
     .exec()
     .then((docs) => {
       const response = {
@@ -35,7 +35,7 @@ exports.get_all_tasks = (req, res, next) => {
           return {
             name: doc.name,
             description: doc.description,
-            assignee: doc.assignee,
+            user: doc.user,
             createdAt: doc.createdAt,
             completed: doc.completed,
             request: "GET",
@@ -55,21 +55,25 @@ exports.get_all_tasks = (req, res, next) => {
 exports.get_task = (req, res, next) => {
   const id = req.params.taskId;
   TaskEntry.findById(id)
-    .select("name description assignee createdAt completed")
+    .select("name description user createdAt completed")
     .exec()
     .then((doc) => {
-      if (doc) {
+      if (!doc) {
+        res.status(404).json({ message: "Task not found" });
+      }
+
+      if (doc.user.toString() == req.user.toString()) {
         res.status(200).json({
           name: doc.name,
           description: doc.description,
-          assignee: doc.assignee,
+          user: doc.user,
           createdAt: doc.createdAt,
           completed: doc.completed,
           request: "GET",
         });
       } else {
-        console.log("No valid entry");
-        res.status(404).json({ error: "No entry found" });
+        console.log("NOT Authorized");
+        res.status(404).json({ error: "Not Authorized" });
       }
     })
     .catch((err) => {
@@ -80,36 +84,68 @@ exports.get_task = (req, res, next) => {
 
 exports.update_task = (req, res, next) => {
   const id = req.params.taskId;
-  const updateOps = {};
 
-  for (const ops in req.body) {
-    updateOps[ops.propName] = ops.value;
-  }
-
-  TaskEntry.updateMany({ _id: id }, { $set: updateOps })
+  TaskEntry.findById(id)
     .exec()
-    .then((result) => {
-      res.status(200).json({
-        message: "Task updated successfully",
-        request: {
-          type: "GET",
-          url: "baseURL/tasks/" + id,
-        },
-      });
+    .then((doc) => {
+      if (!doc) {
+        res.status(404).json({ message: "Task not found" });
+      }
+      if (doc.user.toString() == req.user.toString()) {
+        const updateOps = {};
+
+        for (const ops in req.body) {
+          updateOps[ops.propName] = ops.value;
+        }
+
+        TaskEntry.updateMany({ _id: id }, { $set: updateOps })
+          .exec()
+          .then((result) => {
+            res.status(200).json({
+              message: "Task updated successfully",
+              request: {
+                type: "GET",
+                url: "baseURL/tasks/" + id,
+              },
+            });
+          })
+          .catch((error) => {
+            res.status(500).json({ error: error.message });
+          });
+      } else {
+        console.error(error);
+        res.status(401).json({ message: "NOT Authorized" });
+      }
     })
     .catch((error) => {
-      res.status(500).json({ error: error.message });
+      console.log(error);
     });
 };
 exports.delete_task = (req, res, next) => {
   const id = req.params.taskId;
-  TaskEntry.remove({ _id: id })
+
+  TaskEntry.findById(id)
     .exec()
-    .then((result) => {
-      res.status(200).json({ message: "Task deleted successfully" });
+    .then((doc) => {
+      if (!doc) {
+        res.status(404).json({ message: "Task not found" });
+      }
+      if (doc.user.toString() == req.user.toString()) {
+        TaskEntry.remove({ _id: id })
+          .exec()
+          .then((result) => {
+            res.status(200).json({ message: "Task deleted successfully" });
+          })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).json({ error: error.message });
+          });
+      } else {
+        console.error(error);
+        res.status(401).json({ message: "NOT Authorized" });
+      }
     })
     .catch((error) => {
-      console.error(error);
-      res.status(500).json({ error: error.message });
+      console.log(error);
     });
 };
