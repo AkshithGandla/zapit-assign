@@ -16,6 +16,7 @@ exports.signUp = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     user = new User({
+      _id: new mongoose.Types.ObjectId(),
       name: name,
       email: email,
       password: hashedPassword,
@@ -77,6 +78,7 @@ exports.login = async (req, res, next) => {
   }
 };
 exports.logout = async (req, res, next) => {
+  console.log(req);
   res.clearCookie("token");
   res.status(200).json({ message: "User logged out successfully" });
 };
