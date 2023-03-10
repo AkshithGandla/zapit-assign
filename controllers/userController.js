@@ -27,14 +27,14 @@ exports.signUp = async (req, res, next) => {
 
     await user.save();
 
-    const payload = {
+    /*   const payload = {
       user: user._id,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: 360000,
     });
-    res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+    res.cookie("token", token, { httpOnly: true, expiresIn: 360000 }); */
 
     const { password: pass, ...rest } = user._doc;
 
@@ -69,13 +69,14 @@ exports.login = async (req, res, next) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: 360000,
     });
-    res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+    /* res.cookie("token", token, { httpOnly: true, expiresIn: 360000 }); */
 
     const { password: pass, ...rest } = user._doc;
 
     res.status(201).json({
       message: "User logged in successfully",
       user: rest,
+      token: token,
     });
   } catch (err) {
     console.error(err);
