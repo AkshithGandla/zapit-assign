@@ -94,11 +94,11 @@ exports.update_task = (req, res, next) => {
       if (doc.user.toString() == req.user.toString()) {
         const updateOps = {};
 
-        for (const ops in req.body) {
+        for (const ops of req.body) {
           updateOps[ops.propName] = ops.value;
         }
 
-        TaskEntry.updateMany({ _id: id }, { $set: updateOps })
+        TaskEntry.updateOne({ _id: id }, { $set: updateOps })
           .exec()
           .then((result) => {
             res.status(200).json({
